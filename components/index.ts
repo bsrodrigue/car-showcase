@@ -1,3 +1,4 @@
+export { default as CarCard } from "./CarCard";
 export { default as CustomButton } from "./CustomButton";
 export { default as CustomFilter } from "./CustomFilter";
 export { default as Footer } from "./Footer";
