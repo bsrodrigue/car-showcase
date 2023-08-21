@@ -4,7 +4,7 @@ import { Navbar, Footer } from '@/components'
 
 export const metadata: Metadata = {
   title: 'Gamos Yaar',
-  description: 'The Yaar of the Gamos',
+  description: 'The Yaar of the Gamos for you',
 }
 
 export default function RootLayout({
