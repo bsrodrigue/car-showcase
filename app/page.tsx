@@ -1,9 +1,42 @@
-import { CarCard, CustomFilter, Hero, SearchBar } from "@/components";
-import { fetchCars } from "@/utils";
+"use client";
 
-export default async function Home() {
-  const allCars = await fetchCars();
-  const isDataEmpty = allCars?.length === 0;
+import { CarCard, CustomFilter, Hero, SearchBar, ShowMore } from "@/components";
+import { fuels, yearsOfProduction } from "@/constants";
+import { fetchCars } from "@/utils";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+export default function Home() {
+  const [allCars, setAllCars] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [manufacturer, setManufacturer] = useState("");
+  const [model, setModel] = useState("");
+  const [fuel, setFuel] = useState("");
+  const [year, setYear] = useState(2022);
+  const [limit, setLimit] = useState(10);
+
+  const getCars = async () => {
+    try {
+      setLoading(true);
+      const result = await fetchCars({
+        manufacturer: manufacturer || '',
+        year: year || 2023,
+        fuel: fuel || '',
+        limit: limit || 10,
+        model: model || '',
+      });
+      setAllCars(result);
+    } catch (error) {
+      console.error(error);
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getCars();
+  }, [fuel, year, limit, manufacturer, model])
 
   return (
     <main className="overflow-hidden">
@@ -16,16 +49,25 @@ export default async function Home() {
         </div>
 
         <div className="home__filters">
-          <SearchBar />
+          <SearchBar
+            setManufacturer={setManufacturer}
+            setModel={setModel}
+          />
 
           <div className="home__filter-container">
-            <CustomFilter title="fuel" />
-            <CustomFilter title="year" />
+            <CustomFilter setFilter={setFuel} options={fuels} title="fuel" />
+            <CustomFilter setFilter={setYear} options={yearsOfProduction} title="year" />
           </div>
         </div>
-
         {
-          !isDataEmpty ? (
+          loading && (
+            <div className="mt-16 w-full flex-center">
+              {/* <Image src="/loader.svg" alt="loader" width={50} height={50} className="object-contain" /> */}
+            </div>
+          )
+        }
+        {
+          allCars.length > 0 ? (
             <section>
               <div className="home__cars-wrapper">
                 {
@@ -34,6 +76,12 @@ export default async function Home() {
                   ))
                 }
               </div>
+
+              <ShowMore
+                pageNumber={(limit) / 10}
+                isNext={limit > allCars.length}
+                setLimit={setLimit}
+              />
             </section>
           ) : (
             <div className="home__error-container">
@@ -41,8 +89,6 @@ export default async function Home() {
             </div>
           )
         }
-
-
       </div>
     </main>
   )
